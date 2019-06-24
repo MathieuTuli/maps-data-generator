@@ -53,14 +53,15 @@ class GoogleMapsAPI:
                             geocoded_addr: GeocodedLocation,
                             image_zoom: int = 20,
                             image_shape: ImageShape = ImageShape(
-                                w=640, h=400)) -> bool:
-        image_request = f"https://maps.googleapis.com/maps/api/staticmap?" + \
-            f"center={geocoded_addr.lat}%2C{geocode_result.lon}&" + \
+                                w=640, h=400)) -> str:
+        image_request_url = f"https://maps.googleapis.com/maps/api/" + \
+            f"staticmap?center={geocoded_addr.lat}%2C{geocode_result.lon}&" + \
             f"zoom={image_zoom}&size={image_shape.w}x{image_shape.h}&" + \
             "maptype=satellite&style=feature%3Aall%7Celement%3Alabels%7C" + \
             f"visibility%3Aoff&key={self.key}"
         logging.debug(f"Image request for -{geocoded_addr.original_address}-" +
-                      f" is \n\n {image_request}")
+                      f" is \n\n {image_request_url}")
+        return image_request_url
 
 
 parser = ArgumentParser(description=__doc__)
