@@ -13,6 +13,6 @@ class GeocodedLocation(NamedTuple):
     original_address: str
 
 
-class ImageSize(NamedTuple):
+class ImageShape(NamedTuple):
     w: int
     h: int

@@ -1,6 +1,6 @@
 """Google Maps Portion"""
 
-from typing import Optional, Tuple
+from typing import Optional
 from argparse import ArgumentParser
 
 import importlib.resources
@@ -9,7 +9,7 @@ import logging
 
 import googlemaps
 
-from .components import GeocodedLocation, ImageSize
+from .components import GeocodedLocation, ImageShape
 
 API_KEY = importlib.resources.read_text('mapsdg', '.api_key')
 
@@ -52,11 +52,11 @@ class GoogleMapsAPI:
     def get_satellite_image(self,
                             geocoded_addr: GeocodedLocation,
                             image_zoom: int = 20,
-                            image_size: ImageSize = ImageSize(w=640,
-                                                              h=400)) -> bool:
+                            image_shape: ImageShape = ImageShape(
+                                w=640, h=400)) -> bool:
         image_request = f"https://maps.googleapis.com/maps/api/staticmap?" + \
             f"center={geocoded_addr.lat}%2C{geocode_result.lon}&" + \
-            f"zoom={image_zoom}&size={image_size.w}x{image_size.h}&" + \
+            f"zoom={image_zoom}&size={image_shape.w}x{image_shape.h}&" + \
             "maptype=satellite&style=feature%3Aall%7Celement%3Alabels%7C" + \
             f"visibility%3Aoff&key={self.key}"
         logging.debug(f"Image request for -{geocoded_addr.original_address}-" +
