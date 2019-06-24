@@ -1,6 +1,6 @@
 '''Components for typing purposes'''
 # from dataclasses import dataclass
-from typing import TypeVar, NamedTuple, NewType, List, Union, Any
+from typing import NamedTuple
 
 
 class GeocodedLocation(NamedTuple):
