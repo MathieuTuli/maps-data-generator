@@ -2,7 +2,7 @@ from setuptools import setup
 from glob import glob
 
 setup(
-    name='maps-data-generator',
+    name='maps_data_generator',
     use_scm_version=True,
     packages=['mapsdg'],
     package_dir={'': 'src'},
@@ -11,6 +11,8 @@ setup(
     url='https://github.com/mathieutuli/maps-data-generator',
     python_requires='~=3.7',
     install_requires=[
+        'googlemaps',
+        'request>=2.4.0',
     ],
     extras_require={
         'docs': [
