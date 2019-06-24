@@ -1,17 +1,15 @@
 """Google Maps Portion"""
 
-from datetime import datetime
-from typing import Optional
+from typing import Optional, Tuple
 from argparse import ArgumentParser
 
 import importlib.resources
 import traceback
 import logging
-import json
 
 import googlemaps
 
-from .components import GeocodedLocation
+from .components import GeocodedLocation, ImageSize
 
 API_KEY = importlib.resources.read_text('mapsdg', '.api_key')
 
@@ -52,14 +50,17 @@ class GoogleMapsAPI:
             return None
 
     def get_satellite_image(self,
-                            addr: str,) -> bool:
-        geocode_result = self.geocode_address(addr)
+                            geocoded_addr: GeocodedLocation,
+                            image_zoom: int = 20,
+                            image_size: ImageSize = ImageSize(w=640,
+                                                              h=400)) -> bool:
         image_request = f"https://maps.googleapis.com/maps/api/staticmap?" + \
-            f"center={geocode_result.lat}%2C{geocode_result.lon}&" + \
-            "zoom=18&size=600x400&maptype=satellite&style=" + \
-            "feature%3Aall%7Celement%3Alabels%7Cvisibility%3Aoff&" + \
-            f"key={self.key}"
-        logging.debug(f"Image request for -{addr}- is \n\n {image_request}")
+            f"center={geocoded_addr.lat}%2C{geocode_result.lon}&" + \
+            f"zoom={image_zoom}&size={image_size.w}x{image_size.h}&" + \
+            "maptype=satellite&style=feature%3Aall%7Celement%3Alabels%7C" + \
+            f"visibility%3Aoff&key={self.key}"
+        logging.debug(f"Image request for -{geocoded_addr.original_address}-" +
+                      f" is \n\n {image_request}")
 
 
 parser = ArgumentParser(description=__doc__)
@@ -74,4 +75,5 @@ elif args.log_level == 'DEBUG':
 
 if __name__ == "__main__":
     g = GoogleMapsAPI(key=API_KEY)
-    g.get_satellite_image("233 Soper Place, Ottawa, Canada")
+    geocode_result = g.geocode_address("233 Soper Place, Ottawa, Canada")
+    g.get_satellite_image(geocode_result)

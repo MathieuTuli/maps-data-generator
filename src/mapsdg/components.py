@@ -11,3 +11,8 @@ class GeocodedLocation(NamedTuple):
     lat: float
     lon: float
     original_address: str
+
+
+class ImageSize(NamedTuple):
+    w: int
+    h: int
