@@ -7,7 +7,7 @@ This repository will provide functionality to generator the following given a bu
 - Building footprint (array of lat/lon points)
 
 ## How to use ##
-First we need to generate API keys for Google Maps and Open street maps.
+First we need to generate API keys for Google Maps, Google Earth Engine API, and Open street maps.
 
 ***For Google Maps***
 Each Google Maps Web Service request requires an API key or client ID. API keys
@@ -38,3 +38,11 @@ You only need one API key, but remember to enable all the APIs you need.
 For even more information, see the guide to [API keys][apikey].
 
 **Important:** This key should be kept secret on your server.
+
+***For Google Earth Engine API***
+The Earth Engine APIs use the OAuth 2.0 protocol for authenticating clients. In order to authenticate, you will need to first setup a credentials file on your computer that authorizes access to Earth Engine on behalf of your Google account. You can trigger the process of creating the credentials file by calling the ee.Initialize() method from the following terminal command:
+`python -c "import ee; ee.Initialize()"`
+If you call ee.Initialize() without any arguments (as the preceding command does), the API tries to read credentials from a file located in a subfolder of your home directory. The location of the credentials file depends on your operating system. On Linux or OSX, the location is:
+`$HOME/.config/earthengine/credentials`
+On Windows, the location is
+`%UserProfile%\.config\earthengine\credentials`

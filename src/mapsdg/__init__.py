@@ -29,9 +29,9 @@ def download_static_images(
         try:
             url = google_maps_api.get_static_image_url(addr=line)
             try:
-                google_maps_api.download_image_from_url(url=url,
-                                                        directory=directory,
-                                                        file_name=line)
+                download_image_from_url(url=url,
+                                        directory=directory,
+                                        file_name=line)
             except Exception:
                 logging.error(f"Could not get url for addr - {addr} - " +
                               f"due to\n\n{traceback.print_exc()}")

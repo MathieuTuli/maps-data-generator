@@ -33,6 +33,8 @@ class GoogleMapsAPI:
             geocode_result = self.client.geocode(addr)
             logging.debug(
                     f"Geocoded result from - {addr} - \n\n{geocode_result}")
+            if not geocode_result:
+                return None
             for elem in geocode_result:
                 keys = elem.keys()
                 logging.debug(
@@ -47,11 +49,11 @@ class GoogleMapsAPI:
                         lat=values["location"]["lat"],
                         lon=values["location"]["lng"],
                         original_address=addr,)
-        except Exception:
+        except Exception as e:
             logging.debug(
                     f"Geocoded result for - {addr} - failed due to \n\n " +
                     f"{traceback.print_exc()}")
-            return None
+            raise e
 
     def get_static_image_url(self,
                              addr: Union[str, GeocodedLocation],
