@@ -26,7 +26,7 @@ setup(
         # due to less flexible authentication.
         # Yes, you need to add that #egg=… bit, else pip doesn't know which
         # package in that repo you want to install. A repo may have many or no
-        # packages.        
+        # packages.
     ],
     setup_requires=[
         'setuptools_scm',  # for git-based versioning
