@@ -1,12 +1,15 @@
 """Google Maps Portion"""
 
-from typing import Optional
 from argparse import ArgumentParser
+from pathlib import Path
+from typing import Optional
 
 import importlib.resources
 import traceback
 import logging
+import requests
 
+from PIL import Image
 import googlemaps
 
 from .components import GeocodedLocation, ImageShape, StaticMapType, \
@@ -90,11 +93,34 @@ class GoogleMapsAPI:
                 f"size={image_shape.w}x{image_shape.h}&" +
                 f"maptype={map_type.value}&" +
                 f"format={image_format.value}&" +
-                "style=feature%3Aall%7Celement%3Alabels%7C" +
-                f"visibility%3Aoff&key={self.key}")
+                "style=feature%3Aall%7Celement%3Alabels%7Cvisibility%3Aoff&" +
+                f"key={self.key}".strip())
         logging.debug(f"Image request for - {addr} -" +
-                      f" is \n\n{image_request_url}")
+                      f" is \n{image_request_url}")
         return image_request_url
+
+    def download_image_from_url(
+            self,
+            url: str,
+            directory: str = 'static-images',
+            file_name: Optional[str] = None) -> bool:
+        if not Path(directory).is_dir():
+            Path(directory).mkdir(parents=True)
+        extension = url.split('format=')[1].split('&')[0]
+        if not file_name:
+            file_name = url.split(
+                    "https://maps.googleapis.com/maps/api/staticmap?"
+                    )[1].split('key=')[0]
+        try:
+            response = requests.get(url, stream=True).raw
+            img = Image.open(response)
+            img.save(f'{directory}/{file_name}.{extension}')
+            logging.debug(f"Retrieving image from {url} succeeded")
+            return True
+        except Exception:
+            logging.debug(f"Retrieving image from {url} failed due to \n\n" +
+                          f"{traceback.print_exc()}")
+            return False
 
 
 parser = ArgumentParser(description=__doc__)
@@ -110,5 +136,6 @@ elif args.log_level == 'DEBUG':
 if __name__ == "__main__":
     g = GoogleMapsAPI(key=API_KEY)
     # geocode_result = g.geocode_address("233 Soper Place, Ottawa, Canada")
-    g.get_static_image(image_format="jpg",
-                       addr="233 Soper Place, Ottawa, Canada")
+    url = g.get_static_image(image_format="jpg",
+                             addr="222 Somerset Street West, Ottawa, Ontario")
+    g.download_image_from_url(url, directory='static-images/test')
