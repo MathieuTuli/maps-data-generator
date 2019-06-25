@@ -2,7 +2,7 @@
 
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple, List, Union
 
 import importlib.resources
 import traceback
@@ -53,39 +53,29 @@ class GoogleMapsAPI:
                     f"{traceback.print_exc()}")
             return None
 
-    def get_static_image(self,
-                         geocoded_addr: GeocodedLocation = None,
-                         addr: str = "",
-                         map_type: str = "satellite",
-                         image_zoom: int = 20,
-                         image_shape: ImageShape = ImageShape(
-                              w=640, h=400),
-                         image_format: str = "png") -> Optional[str]:
-        logging.debug(f"Arguments: \n  geocoded_addr:{geocoded_addr}\n" +
+    def get_static_image_url(self,
+                             addr: Union[str, GeocodedLocation],
+                             map_type: str = "satellite",
+                             image_zoom: int = 20,
+                             image_shape: ImageShape = ImageShape(
+                                  w=640, h=400),
+                             image_format: str = "png") -> Optional[str]:
+        logging.debug(f"Arguments: \n" +
                       f"  addr:{addr}\n  map_type:{map_type}\n" +
                       f"  image_zoom:{image_zoom}\n" +
                       f"  image_shape:{image_shape}\n" +
                       f"  image_format:{image_format}")
-        if not isinstance(geocoded_addr, GeocodedLocation) and geocoded_addr:
-            logging.error(
-                    f"Argument:geocoded_addr - {geocoded_addr} - is not" +
-                    " of type:GeocodedLocation")
-            raise ValueError(
-                    f"Argument:geocoded_addr - {geocoded_addr} - is not" +
-                    " of type:GeocodedLocation")
-        if not isinstance(addr, str) and addr:
-            logging.error(f"Argument:addr - {addr} - is not of type:str")
-            raise ValueError(f"Argument:addr - {addr} - is not of type:str")
-        image_format = ImageFormat(image_format)
-        map_type = StaticMapType(map_type)
-        if geocoded_addr:
-            addr = geocoded_addr.original_address
-            center = f"{geocoded_addr.lat},{geocoded_addr.lon}&"
-        elif addr:
+        if isinstance(addr, GeocodedLocation):
+            center = f"{addr.lat},{addr.lon}&"
+        elif isinstance(addr, str):
             center = addr
         else:
-            logging.debug("Satellite image image request received no address")
-            return
+            logging.error(f"Argument:addr - {addr} - is not of type:str" +
+                          " or GeocodedLocation")
+            raise ValueError(f"Argument:addr - {addr} - is not of type:str" +
+                             "or GeocodedLocation")
+        image_format = ImageFormat(image_format)
+        map_type = StaticMapType(map_type)
         image_request_url = (
                 "https://maps.googleapis.com/maps/api/staticmap?" +
                 f"center={center}&" +
@@ -98,6 +88,37 @@ class GoogleMapsAPI:
         logging.debug(f"Image request for - {addr} -" +
                       f" is \n{image_request_url}")
         return image_request_url
+
+    def download_static_images(
+            self,
+            addr: Optional[Union[str, GeocodedLocation]] = None,
+            file_name: Optional[Union[str, Path]] = None,
+            from_file: bool = False,
+            directory: str = 'static-images') -> Tuple[List[str], bool]:
+        if from_file:
+            if not Path(file_name).is_file():
+                raise ValueError(f"File - {file_name} - does not exist")
+            with open(file_name, 'r') as f:
+                lines = f.readlines()
+        else:
+            lines = [addr]
+        for line in lines:
+            try:
+                url = self.get_static_image_url(addr=line)
+                try:
+                    self.download_image_from_url(url=url,
+                                                 directory=directory,
+                                                 file_name=line)
+                except Exception:
+                    logging.error(f"Could not get url for addr - {addr} - " +
+                                  f"due to\n\n{traceback.print_exc()}")
+                    return (addr, False)
+
+            except Exception:
+                logging.error(f"Could not get url for addr - {addr} - due to" +
+                              f"\n\n{traceback.print_exc()}")
+                return (addr, False)
+        return ((), True)
 
     def download_image_from_url(
             self,
@@ -136,6 +157,4 @@ elif args.log_level == 'DEBUG':
 if __name__ == "__main__":
     g = GoogleMapsAPI(key=API_KEY)
     # geocode_result = g.geocode_address("233 Soper Place, Ottawa, Canada")
-    url = g.get_static_image(image_format="jpg",
-                             addr="222 Somerset Street West, Ottawa, Ontario")
-    g.download_image_from_url(url, directory='static-images/test')
+    g.download_static_images(file_name='addresses.txt', from_file=True)
