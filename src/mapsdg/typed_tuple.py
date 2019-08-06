@@ -53,7 +53,8 @@ class TypedTuple:
                     # attr_value for further validation
                     attr_value = typed_attr[1](attr_value)
                 else:
-                    raise TypeError(f'{typed_attr[0]} is not of type {typed_attr[1]}')
+                    raise TypeError(
+                        f'{typed_attr[0]} is not of type {typed_attr[1]}')
 
         # Return the original value
         return attr_value
@@ -61,6 +62,8 @@ class TypedTuple:
     @classmethod
     def _get_typed_attrs(cls) -> tuple:
         all_items = cls.__dict__.items()
-        public_items = filter(lambda attr: not attr[0].startswith('_') and not attr[0].endswith('_'), all_items)
-        public_attrs = filter(lambda attr: not inspect.isroutine(attr[1]), public_items)
+        public_items = filter(lambda attr: not attr[0].startswith(
+            '_') and not attr[0].endswith('_'), all_items)
+        public_attrs = filter(
+            lambda attr: not inspect.isroutine(attr[1]), public_items)
         return [attr for attr in public_attrs if isinstance(attr[1], type)]
