@@ -66,4 +66,10 @@ class ImageFormat(NamedTuple):
     value: str
 
 
-__all__ = "GeocodedLocation", "ImageShape", "StaticMapType", "ImageShape"
+class LatLon(NamedTuple):
+    lon: str
+    lat: str
+
+
+__all__ = "GeocodedLocation", "ImageShape", "StaticMapType", "ImageShape",\
+    "LatLon"
