@@ -1,38 +1,31 @@
 # from argparse import ArgumentParser
 from pathlib import Path
-from typing import Union, Optional, List, Tuple
+from typing import Optional, Tuple
 
 import traceback
 import logging
 
 from skimage import io
 import numpy as np
-# import cv2
+import cv2
 
 from .google_maps_api import GoogleMapsAPI
-from .components import GeocodedLocation
 
 
-def download_static_images(
+def download_static_images_from_file(
         google_maps_api: GoogleMapsAPI,
-        addr: Optional[Union[str, GeocodedLocation]] = None,
-        file_name: Optional[Union[str, Path]] = None,
-        from_file: bool = False,
-        directory: str = 'static-images') -> Tuple[List[str], bool]:
-    if from_file:
-        if not Path(file_name).is_file():
-            raise ValueError(f"File - {file_name} - does not exist")
-        with open(file_name, 'r') as f:
-            lines = f.readlines()
-    else:
-        lines = [addr]
-    for line in lines:
+        file_name: Path,
+        save_to: Path,) -> Tuple[Optional(str), bool]:
+
+    with file_name.open() as f:
+        lines = [line.strip() for line in f.readlines()]
+
+    for addr in lines:
         try:
-            url = google_maps_api.get_static_image_url(addr=line)
+            url = google_maps_api.get_static_image_url(addr=addr)
             try:
-                download_image_from_url(url=url,
-                                        directory=directory,
-                                        file_name=line)
+                opencv_image = get_image_from_url(url=url)
+                cv2.imwrite(f"{str(save_to / {url}.jpg)}", opencv_image)
             except Exception:
                 logging.error(f"Could not get url for addr - {addr} - " +
                               f"due to\n\n{traceback.print_exc()}")
@@ -42,7 +35,7 @@ def download_static_images(
             logging.error(f"Could not get url for addr - {addr} - due to" +
                           f"\n\n{traceback.print_exc()}")
             return (addr, False)
-    return ((), True)
+    return (None, True)
 
 
 def get_image_from_url(
