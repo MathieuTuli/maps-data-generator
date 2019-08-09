@@ -14,7 +14,7 @@ import re
 import googlemaps
 
 from .components import GeocodedLocation, ImageShape, StaticMapType, \
-    ImageFormat, LatLon
+    ImageFormat, LatLon, ViewType, Heading, FieldOfView, Pitch, Radius
 
 API_KEY = importlib.resources.read_text('mapsdg', '.api_key')
 
@@ -70,36 +70,55 @@ class GoogleMapsAPI:
             logging.error(err)
             raise ValueError(err)
 
-    def get_static_image_url(
+    def get_image_url(
             self,
             addr: Union[LatLon, GeocodedLocation, str],
+            view_type: ViewType,
             map_type: StaticMapType = StaticMapType.satellite,
             image_zoom: int = 20,
             image_shape: ImageShape = ImageShape(width=640, height=400),
             image_format: ImageFormat = ImageFormat.png,
-            additional_options: str = "") -> Optional[str]:
+            heading: Heading = Heading(),
+            fov: FieldOfView = FieldOfView(),
+            pitch: Pitch = Pitch(),
+            radius: Radius = Radius(),
+            additional_parameters: str = "") -> Optional[str]:
         logging.debug(f"get_static_image_url Arguments: \n" +
                       f"  addr:{addr}\n  map_type:{map_type}\n" +
                       f"  image_zoom:{image_zoom}\n" +
                       f"  image_shape:{image_shape}\n" +
                       f"  image_format:{image_format}")
-        result = re.match("^(.+=.+&)*$", additional_options)
+        result = re.match("^(.+=.+&)*$", additional_parameters)
         if not result:
             err = "Incorrect additioanl options. Must follow the" +\
                 "regex: \"^(.+=.+&)*$\""
             logging.error(err)
             raise ValueError(err)
         center = self.get_static_center_string(addr)
-        image_request_url = (
-            "https://maps.googleapis.com/maps/api/staticmap?" +
-            f"center={center}&" +
-            f"zoom={image_zoom}&" +
-            f"size={image_shape.width}x{image_shape.height}&" +
-            f"maptype={map_type.name}&" +
-            f"format={image_format.name}&" +
-            "style=feature%3Aall%7Celement%3Alabels%7Cvisibility%3Aoff&" +
-            f"key={self.key}".strip() +
-            additional_options)
+        if view_type.name == 'staticmap':
+            image_request_url = (
+                f"https://maps.googleapis.com/maps/api/{view_type.name}?" +
+                f"center={center}&" +
+                f"zoom={image_zoom}&" +
+                f"size={image_shape.width}x{image_shape.height}&" +
+                f"maptype={map_type.name}&" +
+                f"format={image_format.name}&" +
+                "style=feature%3Aall%7Celement%3Alabels%7Cvisibility%3Aoff&" +
+                f"key={self.key}".strip() +
+                additional_parameters)
+        elif view_type.name == 'streetview':
+            image_request_url = (
+                f"https://maps.googleapis.com/maps/api/{view_type.name}?" +
+                f"location={center}&" +
+                f"heading={heading.value}&" +
+                f"size={image_shape.width}x{image_shape.height}&" +
+                f"fov={fov.value}&" +
+                f"pitch={pitch.value}&" +
+                f"radius={radius.value}&" +
+                f"format={image_format.name}&" +
+                "style=feature%3Aall%7Celement%3Alabels%7Cvisibility%3Aoff&" +
+                f"key={self.key}".strip() +
+                additional_parameters)
         logging.debug(f"Image request for - {addr} -" +
                       f" is \n{image_request_url}")
         return image_request_url
