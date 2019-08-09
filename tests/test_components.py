@@ -14,7 +14,7 @@ def test_heading():
     fail_if(heading.value != 0)
 
     try:
-        Heading(-1)
+        Heading(-361)
         pytest.fail()
     except ValueError:
         pass
@@ -25,6 +25,7 @@ def test_heading():
         pass
 
     fail_if(Heading(200).value != 200)
+    fail_if(Heading(-200).value != -200)
 
 
 def test_field_of_fiew():

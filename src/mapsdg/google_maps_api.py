@@ -42,6 +42,8 @@ class GoogleMapsAPI:
                     f"\n\nKeys are {keys}")
                 if "geometry" in keys:
                     values = elem["geometry"]
+                    if 'bounds' not in values:
+                        return None
                     return GeocodedLocation(
                         ne_lat=values["bounds"]["northeast"]["lat"],
                         ne_lon=values["bounds"]["northeast"]["lng"],
@@ -58,12 +60,12 @@ class GoogleMapsAPI:
 
     def get_static_center_string(
             self,
-            addr: Union[LatLon, GeocodedLocation, str],) -> LatLon:
+            addr: Union[LatLon, GeocodedLocation, str],) -> str:
         if isinstance(addr, str):
             addr = self.geocode_address(addr)
 
         if isinstance(addr, GeocodedLocation) or isinstance(addr, LatLon):
-            return f"{addr.lat},{addr.lon}&"
+            return f"{addr.lat},{addr.lon}"
         else:
             err = (f"Argument:addr - {addr} - is not of type: str" +
                    " or GeocodedLocation or LatLon")
@@ -134,7 +136,7 @@ class GoogleMapsAPI:
 #     logging.root.setLevel(logging.DEBUG)
 
 
-if __name__ == "__main__":
-    g = GoogleMapsAPI(key=API_KEY)
+# if __name__ == "__main__":
+    # g = GoogleMapsAPI(key=API_KEY)
     # geocode_result = g.geocode_address("233 Soper Place, Ottawa, Canada")
     # g.download_static_images(file_name='addresses.txt', from_file=True)

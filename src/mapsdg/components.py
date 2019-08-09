@@ -9,7 +9,7 @@ class Heading:
     def __init__(self, heading: int = 0):
         try:
             heading = int(heading)
-            if heading > 360 or heading < 0:
+            if heading > 360 or heading < -360:
                 raise
             self.value = heading
         except Exception:
