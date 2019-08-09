@@ -1,15 +1,16 @@
 """Google Maps Portion"""
 
 from argparse import ArgumentParser
-from pathlib import Path
-from typing import Optional, Tuple, List, Union
+# from pathlib import Path
+from typing import Optional, Union
 
 import importlib.resources
 import traceback
 import logging
-import requests
+# import requests
+import re
 
-from PIL import Image
+# from PIL import Image
 import googlemaps
 
 from .components import GeocodedLocation, ImageShape, StaticMapType, \
@@ -21,7 +22,7 @@ API_KEY = importlib.resources.read_text('mapsdg', '.api_key')
 class GoogleMapsAPI:
     def __init__(self,
                  key: str = "",) -> None:
-        if key:
+        if isinstance(key, str):
             self.client = googlemaps.Client(key=key)
             self.key = key
         else:
@@ -55,38 +56,50 @@ class GoogleMapsAPI:
                 f"{traceback.print_exc()}")
             raise e
 
-    def get_static_image_url(self,
-                             addr: Union[LatLon, GeocodedLocation],
-                             map_type: str = "satellite",
-                             image_zoom: int = 20,
-                             image_shape: ImageShape = ImageShape(
-                                 w=640, h=400),
-                             image_format: str = "png") -> Optional[str]:
-        logging.debug(f"Arguments: \n" +
+    def get_static_center_string(
+            self,
+            addr: Union[LatLon, GeocodedLocation, str],) -> LatLon:
+        if isinstance(addr, str):
+            addr = self.geocode_address(addr)
+
+        if isinstance(addr, GeocodedLocation) or isinstance(addr, LatLon):
+            return f"{addr.lat},{addr.lon}&"
+        else:
+            err = (f"Argument:addr - {addr} - is not of type: str" +
+                   " or GeocodedLocation or LatLon")
+            logging.error(err)
+            raise ValueError(err)
+
+    def get_static_image_url(
+            self,
+            addr: Union[LatLon, GeocodedLocation, str],
+            map_type: StaticMapType = StaticMapType.satellite,
+            image_zoom: int = 20,
+            image_shape: ImageShape = ImageShape(width=640, height=400),
+            image_format: ImageFormat = ImageFormat.png,
+            additional_options: str = "") -> Optional[str]:
+        logging.debug(f"get_static_image_url Arguments: \n" +
                       f"  addr:{addr}\n  map_type:{map_type}\n" +
                       f"  image_zoom:{image_zoom}\n" +
                       f"  image_shape:{image_shape}\n" +
                       f"  image_format:{image_format}")
-        if isinstance(addr, GeocodedLocation):
-            center = f"{addr.lat},{addr.lon}&"
-        elif isinstance(addr, LatLon):
-            center = f"{addr.lat},{addr.lon}&"
-        else:
-            logging.error(f"Argument:addr - {addr} - is not of type:str" +
-                          " or GeocodedLocation")
-            raise ValueError(f"Argument:addr - {addr} - is not of type:str" +
-                             "or GeocodedLocation")
-        image_format = ImageFormat(image_format)
-        map_type = StaticMapType(map_type)
+        result = re.match("^(.+=.+&)*$", additional_options)
+        if not result:
+            err = "Incorrect additioanl options. Must follow the" +\
+                "regex: \"^(.+=.+&)*$\""
+            logging.error(err)
+            raise ValueError(err)
+        center = self.get_static_center_string(addr)
         image_request_url = (
             "https://maps.googleapis.com/maps/api/staticmap?" +
             f"center={center}&" +
             f"zoom={image_zoom}&" +
-            f"size={image_shape.w}x{image_shape.h}&" +
-            f"maptype={map_type.value}&" +
-            f"format={image_format.value}&" +
+            f"size={image_shape.width}x{image_shape.height}&" +
+            f"maptype={map_type.name}&" +
+            f"format={image_format.name}&" +
             "style=feature%3Aall%7Celement%3Alabels%7Cvisibility%3Aoff&" +
-            f"key={self.key}".strip())
+            f"key={self.key}".strip() +
+            additional_options)
         logging.debug(f"Image request for - {addr} -" +
                       f" is \n{image_request_url}")
         return image_request_url

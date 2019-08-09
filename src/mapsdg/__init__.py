@@ -3,13 +3,11 @@ from pathlib import Path
 from typing import Union, Optional, List, Tuple
 
 import traceback
-import requests
 import logging
 
-from PIL import Image
 from skimage import io
 import numpy as np
-import cv2
+# import cv2
 
 from .google_maps_api import GoogleMapsAPI
 from .components import GeocodedLocation
