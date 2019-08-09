@@ -15,7 +15,7 @@ from .google_maps_api import GoogleMapsAPI
 def download_static_images_from_file(
         google_maps_api: GoogleMapsAPI,
         file_name: Path,
-        save_to: Path,) -> Tuple[Optional(str), bool]:
+        save_to: Path,) -> Tuple[Optional[str], bool]:
 
     with file_name.open() as f:
         lines = [line.strip() for line in f.readlines()]

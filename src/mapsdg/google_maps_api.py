@@ -124,14 +124,14 @@ class GoogleMapsAPI:
         return image_request_url
 
 
-parser = ArgumentParser(description=__doc__)
-parser.add_argument('--log-level', default='INFO',
-                    type=str)
-args = parser.parse_args()
-if args.log_level == 'INFO':
-    logging.root.setLevel(logging.INFO)
-elif args.log_level == 'DEBUG':
-    logging.root.setLevel(logging.DEBUG)
+# parser = ArgumentParser(description=__doc__)
+# parser.add_argument('--log-level', default='INFO',
+#                     type=str)
+# args = parser.parse_args()
+# if args.log_level == 'INFO':
+#     logging.root.setLevel(logging.INFO)
+# elif args.log_level == 'DEBUG':
+#     logging.root.setLevel(logging.DEBUG)
 
 
 if __name__ == "__main__":
