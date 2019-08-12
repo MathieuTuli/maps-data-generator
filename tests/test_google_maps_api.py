@@ -48,6 +48,95 @@ def test_get_static_center_string():
         pass
 
 
+def test_get_image_url_args():
+    try:
+        GAPI.get_image_url(
+            addr=0,
+            view_type=ViewType.staticmap,)
+        pytest.fail()
+    except ValueError:
+        pass
+    try:
+        GAPI.get_image_url(
+            addr='233 Soper Place',
+            view_type='staticmap',)
+        pytest.fail()
+    except ValueError:
+        pass
+    try:
+        GAPI.get_image_url(
+            addr='233 Soper Place',
+            view_type=ViewType.staticmap,
+            map_type='test',)
+        pytest.fail()
+    except ValueError:
+        pass
+    try:
+        GAPI.get_image_url(
+            addr='233 Soper Place',
+            view_type=ViewType.staticmap,
+            image_zoom='test',)
+        pytest.fail()
+    except ValueError:
+        pass
+    try:
+        GAPI.get_image_url(
+            addr='233 Soper Place',
+            view_type=ViewType.staticmap,
+            image_shape='test',)
+        pytest.fail()
+    except ValueError:
+        pass
+    try:
+        GAPI.get_image_url(
+            addr='233 Soper Place',
+            view_type=ViewType.staticmap,
+            image_format='test',)
+        pytest.fail()
+    except ValueError:
+        pass
+    try:
+        GAPI.get_image_url(
+            addr='233 Soper Place',
+            view_type=ViewType.staticmap,
+            heading='test',)
+        pytest.fail()
+    except ValueError:
+        pass
+    try:
+        GAPI.get_image_url(
+            addr='233 Soper Place',
+            view_type=ViewType.staticmap,
+            fov='test',)
+        pytest.fail()
+    except ValueError:
+        pass
+    try:
+        GAPI.get_image_url(
+            addr='233 Soper Place',
+            view_type=ViewType.staticmap,
+            pitch='test',)
+        pytest.fail()
+    except ValueError:
+        pass
+    try:
+        GAPI.get_image_url(
+            addr='233 Soper Place',
+            view_type=ViewType.staticmap,
+            radius='test')
+        pytest.fail()
+    except ValueError:
+        pass
+    try:
+        GAPI.get_image_url(
+            addr='233 Soper Place',
+            view_type=ViewType.staticmap,
+            additional_parameters=0)
+        pytest.fail()
+    except ValueError:
+        pass
+
+
 def test_get_static_map():
     global GAPI
     geocoded = GAPI.geocode_address('233 Soper Place, Ottawa, Ontario, Canada')

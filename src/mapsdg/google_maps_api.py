@@ -85,11 +85,33 @@ class GoogleMapsAPI:
             pitch: Pitch = Pitch(),
             radius: Radius = Radius(),
             additional_parameters: str = "") -> Optional[str]:
-        logging.debug(f"get_static_image_url Arguments: \n" +
+        logging.debug(f"get_image_url Arguments: \n" +
                       f"  addr:{addr}\n  map_type:{map_type}\n" +
                       f"  image_zoom:{image_zoom}\n" +
                       f"  image_shape:{image_shape}\n" +
                       f"  image_format:{image_format}")
+        if not isinstance(map_type, StaticMapType):
+            raise ValueError('Argument map_type must be enum StaticMapType')
+        if not isinstance(view_type, ViewType):
+            raise ValueError('Argument view_type must be enum ViewType')
+        if not isinstance(image_zoom, int):
+            raise ValueError('Argument image_zoom must be of type int')
+        if not isinstance(image_shape, ImageShape):
+            raise ValueError('Argument image_shape must be of type ImageShape')
+        if not isinstance(image_format, ImageFormat):
+            raise ValueError(
+                'Argument image_format must be of type ImageFormat')
+        if not isinstance(heading, Heading):
+            raise ValueError('Argument heading must be of type Heading')
+        if not isinstance(fov, FieldOfView):
+            raise ValueError('Argument fov must be of type FieldOfView')
+        if not isinstance(pitch, Pitch):
+            raise ValueError('Argument pitch must be of type Pitch')
+        if not isinstance(radius, Radius):
+            raise ValueError('Argument radius must be of type Radius')
+        if not isinstance(additional_parameters, str):
+            raise ValueError(
+                'Argument additional_parameters must be of type str')
         result = re.match("^(.+=.+&)*$", additional_parameters)
         if not result:
             err = "Incorrect additioanl options. Must follow the" +\
